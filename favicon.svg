@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#000000"/>
+  <path d="M8 48 L8 16 L16 16 L16 48 L8 48 Z" fill="#ffffff"/>
+  <path d="M24 48 L24 24 L32 24 L32 48 L24 48 Z" fill="#ffffff"/>
+  <path d="M40 48 L40 32 L48 32 L48 48 L40 48 Z" fill="#ffffff"/>
+  <path d="M56 48 L56 40 L64 40 L64 48 L56 48 Z" fill="#ffffff"/>
+  <text x="32" y="12" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle">f(x)</text>
+</svg>

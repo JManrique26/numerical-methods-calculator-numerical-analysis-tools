@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Análisis Numérico</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/styles.css?v=4">
+    <!-- MathJax para renderizado de fórmulas matemáticas -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.0/lib/browser/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Enlace de salto de navegación — WCAG 2.4.1 (A) -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <div class="container">
+
+        <!-- Banner principal — landmark role="banner" implícito en <header> bajo <body> -->
+        <header role="banner">
+            <div class="header-content">
+                <h1>Calculadora de Análisis Numérico</h1>
+                <p class="subtitle">Herramientas computacionales para métodos numéricos</p>
+            </div>
+        </header>
+
+        <!-- Región de introducción — WCAG 1.3.1 (A): section con nombre accesible -->
+        <section class="intro-section" aria-labelledby="intro-heading">
+            <div class="intro-content">
+                <h2 id="intro-heading">Bienvenido a la Calculadora de Análisis Numérico</h2>
+                <p>
+                    Esta herramienta interactiva ha sido diseñada para facilitar el aprendizaje y la aplicación de métodos numéricos fundamentales.
+                    La calculadora permite realizar iteraciones de punto fijo, interpolación de Lagrange e integración numérica mediante reglas del trapecio y Simpson,
+                    todo con visualización gráfica en tiempo real y validaciones explicativas detalladas.
+                </p>
+                <p>
+                    Cada módulo incluye representaciones matemáticas profesionales renderizadas con MathJax, gráficos interactivos generados con Chart.js,
+                    y un sistema de historial que permite guardar y recuperar ejercicios anteriores. La interfaz es responsiva y se adapta a diferentes dispositivos y orientaciones.
+                </p>
+                <div class="intro-features">
+                    <div class="feature-item">
+                        <h3>Iteración de Punto Fijo</h3>
+                        <p>Encuentra raíces mediante el método iterativo con visualización de convergencia tipo telaraña.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Interpolación de Lagrange</h3>
+                        <p>Genera polinomios que pasan exactamente por puntos dados con gráficos interactivos.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Integración Numérica</h3>
+                        <p>Calcula integrales aproximadas usando reglas del trapecio y Simpson con visualización geométrica.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Referencia de Fórmulas</h3>
+                        <p>Sección dedicada con todas las fórmulas matemáticas y explicaciones detalladas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!--
+            Navegación de pestañas — WCAG 4.1.2 (A): patrón tablist/tab/tabpanel con ARIA completo.
+            - role="tablist" en el contenedor
+            - role="tab" + aria-selected + aria-controls en cada botón
+            - id único por pestaña para aria-controls / aria-labelledby
+        -->
+        <nav aria-label="Módulos de la calculadora">
+            <div role="tablist" aria-label="Módulos de la calculadora" class="tabs">
+                <button
+                    role="tab"
+                    id="tab-fixed-point"
+                    class="tab-btn active"
+                    aria-selected="true"
+                    aria-controls="fixed-point"
+                    data-tab="fixed-point">
+                    <span class="icon" aria-hidden="true"></span>
+                    Iteración de Punto Fijo
+                </button>
+                <button
+                    role="tab"
+                    id="tab-interpolation"
+                    class="tab-btn"
+                    aria-selected="false"
+                    aria-controls="interpolation"
+                    data-tab="interpolation">
+                    <span class="icon" aria-hidden="true"></span>
+                    Interpolación e Integración
+                </button>
+                <button
+                    role="tab"
+                    id="tab-formulas"
+                    class="tab-btn"
+                    aria-selected="false"
+                    aria-controls="formulas"
+                    data-tab="formulas">
+                    <span class="icon" aria-hidden="true"></span>
+                    Fórmulas
+                </button>
+                <button
+                    role="tab"
+                    id="tab-history"
+                    class="tab-btn"
+                    aria-selected="false"
+                    aria-controls="history"
+                    data-tab="history">
+                    <span class="icon" aria-hidden="true"></span>
+                    Historial
+                </button>
+            </div>
+        </nav>
+
+        <!-- Contenido principal — landmark <main> con id para skip-link — WCAG 2.4.1 (A) -->
+        <main id="main-content">
+
+            <!-- ═══════════════════════════════════════════════════════
+                 Módulo 1: Iteración de Punto Fijo
+                 role="tabpanel" + aria-labelledby apuntando al tab — WCAG 4.1.2 (A)
+            ═══════════════════════════════════════════════════════ -->
+            <section
+                id="fixed-point"
+                role="tabpanel"
+                aria-labelledby="tab-fixed-point"
+                class="tab-content active">
+
+                <div class="module-container">
+                    <div class="panels-row">
+                    <div class="input-panel">
+                        <h2 id="fp-heading">Iteración Simple de Punto Fijo</h2>
+                        <p class="description">Método de iteración: $x_{n+1} = g(x_n)$</p>
+
+                        <!-- Función g(x): label apunta al select; input tiene su propio label -->
+                        <div class="form-group">
+                            <label for="fixed-function-preset">Función g(x) — ejemplo predefinido:</label>
+                            <select id="fixed-function-preset" class="function-select" aria-describedby="fp-fn-hint">
+                                <option value="" disabled selected>— Selecciona una función de ejemplo —</option>
+                                <option value="cos(x)|0.5">cos(x)  →  punto fijo del coseno (~0.739)</option>
+                                <option value="sqrt(x + 2)|1">sqrt(x + 2)  →  raíz de x²–x–2 = 0</option>
+                                <option value="(x^2 + 1) / 3|0.5">(x² + 1) / 3  →  convergencia lenta</option>
+                                <option value="(x + 2/x) / 2|2">(x + 2/x) / 2  →  √2 (Newton-Raphson)</option>
+                                <option value="exp(-x)|0.5">exp(–x)  →  punto fijo de e⁻ˣ (~0.567)</option>
+                                <option value="(x^3 + 5) / 6|1">(x³ + 5) / 6  →  raíz cerca de x = 1</option>
+                            </select>
+                            <!-- Label propio para el input de texto — WCAG 1.3.1 (A) -->
+                            <label for="fixed-function" class="label-secondary">
+                                O escribe tu propia función g(x):
+                            </label>
+                            <input
+                                type="text"
+                                id="fixed-function"
+                                placeholder="Ej: cos(x), sqrt(x+2), (x^2+1)/3"
+                                value="cos(x)"
+                                aria-required="true"
+                                aria-describedby="fp-fn-hint"
+                                autocomplete="off">
+                            <small id="fp-fn-hint">Usa sintaxis de math.js: cos(x), sin(x), sqrt(x), x^2, etc. Selecciona un ejemplo o escribe directamente.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fixed-x0">Valor inicial x₀:</label>
+                            <input
+                                type="number"
+                                id="fixed-x0"
+                                value="0.5"
+                                step="0.1"
+                                aria-required="true"
+                                autocomplete="off">
+                        </div>
+
+                        <div class="form-group">
+                            <fieldset class="method-selector">
+                                <legend>Criterio de parada:</legend>
+                                <label>
+                                    <input type="radio" name="stop-criterion" value="tolerance" checked>
+                                    Por tolerancia
+                                </label>
+                                <label>
+                                    <input type="radio" name="stop-criterion" value="iterations">
+                                    Por iteraciones
+                                </label>
+                                <label>
+                                    <input type="radio" name="stop-criterion" value="both">
+                                    Ambos (tolerancia o iteraciones)
+                                </label>
+                            </fieldset>
+                        </div>
+
+                        <div class="form-group" id="tolerance-group">
+                            <label for="fixed-tolerance">Tolerancia (ε):</label>
+                            <input
+                                type="number"
+                                id="fixed-tolerance"
+                                value="0.00001"
+                                step="0.00001"
+                                aria-required="true"
+                                aria-describedby="fp-tol-hint"
+                                autocomplete="off">
+                            <small id="fp-tol-hint">Usa notación científica: 1e-5 para 10⁻⁵</small>
+                        </div>
+
+                        <div class="form-group" id="iterations-group" style="display: none;">
+                            <label for="fixed-max-iter">Máximo de iteraciones:</label>
+                            <input
+                                type="number"
+                                id="fixed-max-iter"
+                                value="100"
+                                min="1"
+                                max="1000"
+                                aria-required="true"
+                                autocomplete="off">
+                        </div>
+
+                        <div class="button-group">
+                            <button id="fixed-calculate" class="btn btn-primary">Calcular</button>
+                            <button id="fixed-clear" class="btn btn-secondary">Limpiar</button>
+                        </div>
+
+                        <!-- role="alert" anuncia el error inmediatamente a lectores de pantalla — WCAG 4.1.3 (AA) -->
+                        <div id="fixed-error" class="error-message" role="alert" aria-live="assertive"></div>
+                    </div>
+
+                    <!-- aria-live="polite" anuncia resultados al terminar el cálculo — WCAG 4.1.3 (AA) -->
+                    <div class="results-panel">
+                        <div id="fixed-results" class="results-content" aria-live="polite" aria-atomic="false">
+                            <h3>Resultados</h3>
+                            <p class="placeholder">Ingresa los parámetros y haz clic en "Calcular"</p>
+                        </div>
+                    </div>
+                    </div><!-- /.panels-row -->
+
+                    <div class="chart-container chart-full-width">
+                            <!-- role="img" + aria-label para canvas — WCAG 1.1.1 (A) -->
+                            <canvas
+                                id="fixed-chart"
+                                role="img"
+                                aria-label="Gráfico de convergencia del método de iteración de punto fijo">
+                            </canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 Módulo 2: Interpolación e Integración
+            ═══════════════════════════════════════════════════════ -->
+            <section
+                id="interpolation"
+                role="tabpanel"
+                aria-labelledby="tab-interpolation"
+                class="tab-content">
+
+                <!-- Sub-pestañas con patrón tablist/tab/tabpanel — WCAG 4.1.2 (A) -->
+                <div role="tablist" aria-label="Submódulos de interpolación e integración" class="sub-tabs">
+                    <button
+                        role="tab"
+                        id="subtab-lagrange"
+                        class="sub-tab-btn active"
+                        aria-selected="true"
+                        aria-controls="lagrange"
+                        data-subtab="lagrange">
+                        Interpolación de Lagrange
+                    </button>
+                    <button
+                        role="tab"
+                        id="subtab-integration"
+                        class="sub-tab-btn"
+                        aria-selected="false"
+                        aria-controls="integration"
+                        data-subtab="integration">
+                        Integración Numérica
+                    </button>
+                </div>
+
+                <!-- Sub-panel A: Interpolación de Lagrange -->
+                <div
+                    id="lagrange"
+                    role="tabpanel"
+                    aria-labelledby="subtab-lagrange"
+                    class="sub-tab-content active">
+
+                    <div class="module-container">
+                        <div class="panels-row">
+                        <div class="input-panel">
+                            <h2 id="lag-heading">Interpolación de Lagrange</h2>
+                            <p class="description">Encuentra el polinomio que pasa por los puntos dados</p>
+
+                            <!-- fieldset/legend para el grupo de puntos — WCAG 1.3.1 (A) -->
+                            <fieldset class="form-group points-fieldset">
+                                <legend class="points-legend">Puntos de interpolación (x, y)</legend>
+                                <div id="points-container">
+                                    <div class="point-row">
+                                        <!-- aria-label contextual — WCAG 2.4.6 (AA) -->
+                                        <label for="px-1" class="sr-only">Punto 1, coordenada x</label>
+                                        <input type="number" id="px-1" class="point-x" placeholder="x₁" value="0" aria-required="true" autocomplete="off">
+                                        <label for="py-1" class="sr-only">Punto 1, coordenada y</label>
+                                        <input type="number" id="py-1" class="point-y" placeholder="y₁" value="1" aria-required="true" autocomplete="off">
+                                        <button class="btn btn-danger btn-sm remove-point" disabled aria-label="Eliminar punto 1">Eliminar</button>
+                                    </div>
+                                    <div class="point-row">
+                                        <label for="px-2" class="sr-only">Punto 2, coordenada x</label>
+                                        <input type="number" id="px-2" class="point-x" placeholder="x₂" value="1" aria-required="true" autocomplete="off">
+                                        <label for="py-2" class="sr-only">Punto 2, coordenada y</label>
+                                        <input type="number" id="py-2" class="point-y" placeholder="y₂" value="2" aria-required="true" autocomplete="off">
+                                        <button class="btn btn-danger btn-sm remove-point" aria-label="Eliminar punto 2">Eliminar</button>
+                                    </div>
+                                    <div class="point-row">
+                                        <label for="px-3" class="sr-only">Punto 3, coordenada x</label>
+                                        <input type="number" id="px-3" class="point-x" placeholder="x₃" value="2" aria-required="true" autocomplete="off">
+                                        <label for="py-3" class="sr-only">Punto 3, coordenada y</label>
+                                        <input type="number" id="py-3" class="point-y" placeholder="y₃" value="5" aria-required="true" autocomplete="off">
+                                        <button class="btn btn-danger btn-sm remove-point" aria-label="Eliminar punto 3">Eliminar</button>
+                                    </div>
+                                </div>
+                                <button id="add-point" class="btn btn-secondary btn-sm">Agregar Punto</button>
+                            </fieldset>
+
+                            <div class="button-group">
+                                <button id="lagrange-calculate" class="btn btn-primary">Calcular Polinomio</button>
+                                <button id="lagrange-clear" class="btn btn-secondary">Limpiar</button>
+                            </div>
+
+                            <div id="lagrange-error" class="error-message" role="alert" aria-live="assertive"></div>
+                        </div>
+
+                        <div class="results-panel">
+                            <div id="lagrange-results" class="results-content" aria-live="polite" aria-atomic="false">
+                                <h3>Resultados</h3>
+                                <p class="placeholder">Ingresa los puntos y haz clic en "Calcular Polinomio"</p>
+                            </div>
+                        </div>
+                        </div><!-- /.panels-row -->
+
+                        <div class="chart-container chart-full-width">
+                                <canvas
+                                    id="lagrange-chart"
+                                    role="img"
+                                    aria-label="Gráfico del polinomio de interpolación de Lagrange con los puntos dados">
+                                </canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-panel B: Integración Numérica -->
+                <div
+                    id="integration"
+                    role="tabpanel"
+                    aria-labelledby="subtab-integration"
+                    class="sub-tab-content">
+
+                    <div class="module-container">
+                        <div class="panels-row">
+                        <div class="input-panel">
+                            <h2 id="int-heading">Integración Numérica</h2>
+                            <p class="description">Aproximación del área bajo la curva</p>
+
+                            <div class="form-group">
+                                <label for="int-function-preset">Función f(x) — ejemplo predefinido:</label>
+                                <select id="int-function-preset" class="function-select" aria-describedby="int-fn-hint">
+                                    <option value="" disabled selected>— Selecciona una función de ejemplo —</option>
+                                    <option value="x^2|0|2">x²  →  ∫₀² x² dx = 2.6667</option>
+                                    <option value="sin(x)|0|3.14159265">sin(x)  →  ∫₀^π sin(x) dx = 2</option>
+                                    <option value="exp(x)|0|1">exp(x)  →  ∫₀¹ eˣ dx = e–1 ≈ 1.7183</option>
+                                    <option value="1 / (1 + x^2)|0|1">1/(1+x²)  →  ∫₀¹ = π/4 ≈ 0.7854</option>
+                                    <option value="x^3 - 2*x + 1|0|3">x³ – 2x + 1  →  ∫₀³ = 20.25</option>
+                                    <option value="sqrt(x)|0|4">sqrt(x)  →  ∫₀⁴ √x dx = 16/3 ≈ 5.333</option>
+                                </select>
+                                <!-- Label propio para el input — WCAG 1.3.1 (A) -->
+                                <label for="int-function" class="label-secondary">
+                                    O escribe tu propia función f(x):
+                                </label>
+                                <input
+                                    type="text"
+                                    id="int-function"
+                                    placeholder="Ej: x^2, sin(x), exp(x)"
+                                    value="x^2"
+                                    aria-required="true"
+                                    aria-describedby="int-fn-hint">
+                                <small id="int-fn-hint">Selecciona un ejemplo o escribe tu propia función. Los límites se actualizan automáticamente al elegir un ejemplo.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="int-a">Límite inferior (a):</label>
+                                <input type="number" id="int-a" value="0" step="0.1" aria-required="true" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="int-b">Límite superior (b):</label>
+                                <input type="number" id="int-b" value="2" step="0.1" aria-required="true" autocomplete="off">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="int-n">Número de subintervalos (n):</label>
+                                <input
+                                    type="number"
+                                    id="int-n"
+                                    value="10"
+                                    min="1"
+                                    max="1000"
+                                    aria-required="true"
+                                    aria-describedby="int-n-hint"
+                                    autocomplete="off">
+                                <small id="int-n-hint">Trapecio: cualquier n | Simpson 1/3: n debe ser par | Simpson 3/8: n debe ser múltiplo de 3</small>
+                            </div>
+
+                            <!-- fieldset/legend para radios — WCAG 1.3.1 (A) -->
+                            <fieldset class="method-selector">
+                                <legend>Método de integración</legend>
+                                <label>
+                                    <input type="radio" name="int-method" value="trapezoid" checked>
+                                    Regla del Trapecio
+                                </label>
+                                <label>
+                                    <input type="radio" name="int-method" value="simpson13">
+                                    Simpson 1/3
+                                </label>
+                                <label>
+                                    <input type="radio" name="int-method" value="simpson38">
+                                    Simpson 3/8
+                                </label>
+                            </fieldset>
+
+                            <div class="button-group">
+                                <button id="int-calculate" class="btn btn-primary">Calcular Integral</button>
+                                <button id="int-clear" class="btn btn-secondary">Limpiar</button>
+                            </div>
+
+                            <div id="int-error" class="error-message" role="alert" aria-live="assertive"></div>
+                        </div>
+
+                        <div class="results-panel">
+                            <div id="int-results" class="results-content" aria-live="polite" aria-atomic="false">
+                                <h3>Resultados</h3>
+                                <p class="placeholder">Ingresa los parámetros y haz clic en "Calcular Integral"</p>
+                            </div>
+                        </div>
+                        </div><!-- /.panels-row -->
+
+                        <div class="chart-container chart-full-width">
+                                <canvas
+                                    id="int-chart"
+                                    role="img"
+                                    aria-label="Gráfico de integración numérica mostrando el área bajo la curva aproximada">
+                                </canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 Módulo: Fórmulas
+            ═══════════════════════════════════════════════════════ -->
+            <section
+                id="formulas"
+                role="tabpanel"
+                aria-labelledby="tab-formulas"
+                class="tab-content">
+
+                <div class="module-container full-width">
+                    <div class="formulas-panel">
+                        <h2 id="formulas-heading">Fórmulas Matemáticas</h2>
+                        <p class="description">Referencia de todas las fórmulas utilizadas en la aplicación</p>
+
+                        <div class="formula-section" aria-labelledby="fs-fp-heading">
+                            <h3 id="fs-fp-heading">Iteración de Punto Fijo</h3>
+                            <div class="formula-card">
+                                <h4>Fórmula Principal</h4>
+                                <div class="formula-display" aria-label="Fórmula: x subíndice n más 1 igual a g de x subíndice n">
+                                    $$x_{n+1} = g(x_n)$$
+                                </div>
+                                <p class="formula-description">Método de iteración simple para encontrar raíces de ecuaciones transformadas a la forma x = g(x).</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>x<sub>n</sub></strong>: Valor actual de la iteración (aproximación actual)</li>
+                                        <li><strong>x<sub>n+1</sub></strong>: Siguiente valor de la iteración (nueva aproximación)</li>
+                                        <li><strong>g(x)</strong>: Función de iteración derivada de la ecuación original</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Se utiliza para encontrar raíces de ecuaciones cuando se puede transformar f(x) = 0 a x = g(x). El método converge si |g'(x)| &lt; 1 en el intervalo de interés.</p>
+                                </div>
+                            </div>
+
+                            <div class="formula-card">
+                                <h4>Error Aproximado</h4>
+                                <div class="formula-display" aria-label="Criterio de convergencia: valor absoluto de x n+1 menos x n, menor que epsilon">
+                                    $$|x_{n+1} - x_n| < \varepsilon$$
+                                </div>
+                                <p class="formula-description">Criterio de convergencia basado en la tolerancia especificada.</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>x<sub>n+1</sub></strong>: Valor actual de la iteración</li>
+                                        <li><strong>x<sub>n</sub></strong>: Valor anterior de la iteración</li>
+                                        <li><strong>|&hellip;|</strong>: Valor absoluto de la diferencia</li>
+                                        <li><strong>&epsilon;</strong>: Tolerancia (error máximo permitido)</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Se detiene el proceso iterativo cuando la diferencia entre iteraciones consecutivas es menor que la tolerancia especificada, indicando que se ha alcanzado la precisión deseada.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="formula-section" aria-labelledby="fs-lag-heading">
+                            <h3 id="fs-lag-heading">Interpolación de Lagrange</h3>
+                            <div class="formula-card">
+                                <h4>Polinomio de Lagrange</h4>
+                                <div class="formula-display" aria-label="Polinomio P de x igual a la suma de y subíndice i por L subíndice i de x, para i de 0 a n">
+                                    $$P(x) = \sum_{i=0}^{n} y_i L_i(x)$$
+                                </div>
+                                <p class="formula-description">Polinomio que pasa exactamente por n+1 puntos dados (x<sub>i</sub>, y<sub>i</sub>).</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>P(x)</strong>: Polinomio de interpolación resultante</li>
+                                        <li><strong>n</strong>: Grado del polinomio (número de puntos - 1)</li>
+                                        <li><strong>(x<sub>i</sub>, y<sub>i</sub>)</strong>: Puntos de interpolación dados</li>
+                                        <li><strong>L<sub>i</sub>(x)</strong>: Polinomio base de Lagrange i-ésimo</li>
+                                        <li><strong>&sum;</strong>: Sumatoria de i=0 hasta n</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Se utiliza para encontrar un polinomio que pase exactamente por un conjunto de puntos dados. Es útil para aproximar funciones en puntos intermedios donde no se conocen los valores exactos.</p>
+                                </div>
+                            </div>
+
+                            <div class="formula-card">
+                                <h4>Polinomio Base de Lagrange</h4>
+                                <div class="formula-display" aria-label="L subíndice i de x igual al producto de x menos x subíndice j dividido entre x subíndice i menos x subíndice j, para j de 0 a n con j distinto de i">
+                                    $$L_i(x) = \prod_{\substack{j=0 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j}$$
+                                </div>
+                                <p class="formula-description">Cada polinomio base es 1 en x<sub>i</sub> y 0 en los otros nodos.</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>L<sub>i</sub>(x)</strong>: Polinomio base i-ésimo</li>
+                                        <li><strong>&prod;</strong>: Productoria (multiplicación de términos)</li>
+                                        <li><strong>x<sub>i</sub></strong>: Coordenada x del punto i-ésimo</li>
+                                        <li><strong>x<sub>j</sub></strong>: Coordenada x de los otros puntos</li>
+                                        <li><strong>j &ne; i</strong>: Excluye el término cuando j es igual a i</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Cada polinomio base L<sub>i</sub>(x) toma el valor 1 en x<sub>i</sub> y 0 en todos los otros nodos x<sub>j</sub>. Esta propiedad permite construir el polinomio final como combinación lineal de los polinomios base.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="formula-section" aria-labelledby="fs-int-heading">
+                            <h3 id="fs-int-heading">Integración Numérica</h3>
+
+                            <div class="formula-card">
+                                <h4>Regla del Trapecio (Simple)</h4>
+                                <div class="formula-display" aria-label="Integral de a a b de f de x dx, aproximada por b menos a dividido 2, multiplicado por f de a más f de b">
+                                    $$\int_a^b f(x) dx \approx \frac{b-a}{2} [f(a) + f(b)]$$
+                                </div>
+                                <p class="formula-description">Aproximación del área bajo la curva usando un solo trapecio.</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>&int;</strong>: Integral definida (área bajo la curva)</li>
+                                        <li><strong>a, b</strong>: Límites inferior y superior de integración</li>
+                                        <li><strong>f(x)</strong>: Función a integrar</li>
+                                        <li><strong>dx</strong>: Diferencial de x</li>
+                                        <li><strong>&approx;</strong>: Aproximación (no es exacto)</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Método básico que aproxima el área bajo la curva como un trapecio. Es preciso para funciones aproximadamente lineales pero pierde precisión en funciones con alta curvatura.</p>
+                                </div>
+                            </div>
+
+                            <div class="formula-card">
+                                <h4>Regla del Trapecio (Múltiple)</h4>
+                                <div class="formula-display" aria-label="Integral aproximada por h sobre 2 multiplicado por la suma ponderada de los valores de la función en los nodos">
+                                    $$\int_a^b f(x) dx \approx \frac{h}{2} [f(x_0) + 2\sum_{i=1}^{n-1} f(x_i) + f(x_n)]$$
+                                </div>
+                                <p class="formula-description">Aproximación usando múltiples trapecios. Donde $h = \frac{b-a}{n}$ y $x_i = a + ih$.</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>h</strong>: Ancho de cada subintervalo (paso)</li>
+                                        <li><strong>n</strong>: Número de subintervalos</li>
+                                        <li><strong>x<sub>i</sub></strong>: Puntos de partición (x<sub>0</sub> = a, x<sub>n</sub> = b)</li>
+                                        <li><strong>f(x<sub>i</sub>)</strong>: Valor de la función en cada punto</li>
+                                        <li><strong>2</strong>: Peso de los puntos interiores</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Versión mejorada que divide el intervalo en n subintervalos. Aumenta la precisión al usar más trapecios. Funciona con cualquier valor de n (par o impar).</p>
+                                </div>
+                            </div>
+
+                            <div class="formula-card">
+                                <h4>Regla de Simpson 1/3</h4>
+                                <div class="formula-display" aria-label="Integral aproximada por Simpson 1 tercio con pesos 1, 4 y 2 alternados">
+                                    $$\int_a^b f(x) dx \approx \frac{h}{3} [f(x_0) + 4\sum_{i=1,3,5}^{n-1} f(x_i) + 2\sum_{i=2,4,6}^{n-2} f(x_i) + f(x_n)]$$
+                                </div>
+                                <p class="formula-description">Aproximación usando parábolas. Requiere que n sea par.</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>h</strong>: Ancho de cada subintervalo</li>
+                                        <li><strong>n</strong>: Número de subintervalos (debe ser par)</li>
+                                        <li><strong>4</strong>: Peso de los índices impares</li>
+                                        <li><strong>2</strong>: Peso de los índices pares (excepto extremos)</li>
+                                        <li><strong>1</strong>: Peso de los extremos</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Método más preciso que el trapecio que usa parábolas para aproximar. Requiere n par porque agrupa subintervalos en pares para ajustar una parábola a cada grupo de tres puntos consecutivos.</p>
+                                </div>
+                            </div>
+
+                            <div class="formula-card">
+                                <h4>Regla de Simpson 3/8</h4>
+                                <div class="formula-display" aria-label="Integral aproximada por Simpson 3 octavos con pesos 1, 3 y 2">
+                                    $$\int_a^b f(x) dx \approx \frac{3h}{8} [f(x_0) + 3\sum_{i \neq 0,n, i \not\equiv 0 \pmod{3}} f(x_i) + 2\sum_{i \equiv 0 \pmod{3}, i \neq 0,n} f(x_i) + f(x_n)]$$
+                                </div>
+                                <p class="formula-description">Aproximación usando polinomios cúbicos. Requiere que n sea múltiplo de 3.</p>
+                                <div class="formula-variables">
+                                    <h5>Variables:</h5>
+                                    <ul>
+                                        <li><strong>3h/8</strong>: Factor de ponderación del método</li>
+                                        <li><strong>n</strong>: Número de subintervalos (debe ser múltiplo de 3)</li>
+                                        <li><strong>3</strong>: Peso de los puntos no múltiplos de 3</li>
+                                        <li><strong>2</strong>: Peso de los puntos múltiplos de 3 (excepto extremos)</li>
+                                        <li><strong>1</strong>: Peso de los extremos</li>
+                                    </ul>
+                                </div>
+                                <div class="formula-usage">
+                                    <h5>Uso:</h5>
+                                    <p>Método que usa polinomios cúbicos (grado 3) para aproximación. Requiere n múltiplo de 3 porque agrupa subintervalos en grupos de 3 para ajustar un polinomio cúbico a cada grupo de cuatro puntos consecutivos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 Módulo 4: Historial
+            ═══════════════════════════════════════════════════════ -->
+            <section
+                id="history"
+                role="tabpanel"
+                aria-labelledby="tab-history"
+                class="tab-content">
+
+                <div class="module-container full-width">
+                    <div class="history-panel">
+                        <h2 id="history-heading">Historial de Ejercicios</h2>
+                        <p class="description">Ejercicios calculados previamente (guardados en localStorage)</p>
+
+                        <div class="history-controls">
+                            <button
+                                id="clear-history"
+                                class="btn btn-danger"
+                                aria-describedby="clear-history-desc">
+                                Limpiar Todo el Historial
+                            </button>
+                            <span id="clear-history-desc" class="sr-only">
+                                Esta acción eliminará permanentemente todos los ejercicios guardados del historial.
+                            </span>
+                            <button id="export-history" class="btn btn-secondary">
+                                Exportar Historial (JSON)
+                            </button>
+                        </div>
+
+                        <!-- aria-live para anunciar cambios dinámicos en el historial -->
+                        <div id="history-list" class="history-list" aria-live="polite" aria-atomic="false">
+                            <p class="placeholder">No hay ejercicios en el historial</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main><!-- /#main-content -->
+
+        <!-- Footer — role="contentinfo" implícito en <footer> bajo <body> -->
+        <footer role="contentinfo">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <!-- h2 en footer para no saltar de h1 a h3 — WCAG 1.3.1 (A) -->
+                    <h2 class="footer-title">Calculadora de Análisis Numérico</h2>
+                    <p>Herramienta interactiva para métodos numéricos</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-subtitle">Desarrolladores</h3>
+                    <p>Jesús Manuel Manrique Rativa</p>
+                    <p>Cristian Villanueva Medina</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-subtitle">Información del Proyecto</h3>
+                    <p>Fecha de creación: 14 de octubre de 2026</p>
+                    <p>Versión: 1.0.0</p>
+                    <p>Curso: Análisis Numérico</p>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-subtitle">Tecnologías</h3>
+                    <p>HTML5, CSS3, JavaScript</p>
+                    <p>MathJax, Math.js, Chart.js</p>
+                    <p>Electron</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Copyright 2026 - Todos los derechos reservados</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="modules/fixedPoint.js?v=25"></script>
+    <script src="modules/lagrange.js?v=7"></script>
+    <script src="modules/integration.js?v=7"></script>
+    <script src="modules/history.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // ── Selector de funciones — Punto Fijo ──────────────────────────
+        document.getElementById('fixed-function-preset').addEventListener('change', function () {
+            const [fn, x0] = this.value.split('|');
+            document.getElementById('fixed-function').value = fn;
+            if (x0 !== undefined) {
+                document.getElementById('fixed-x0').value = x0;
+            }
+            this.selectedIndex = 0;
+        });
+
+        // ── Criterio de parada — Mostrar campos según selección ─────────────
+        const stopCriterionRadios = document.querySelectorAll('input[name="stop-criterion"]');
+        const toleranceGroup = document.getElementById('tolerance-group');
+        const iterationsGroup = document.getElementById('iterations-group');
+
+        function updateStopCriterionFields() {
+            const selected = document.querySelector('input[name="stop-criterion"]:checked').value;
+
+            if (selected === 'tolerance') {
+                toleranceGroup.style.display = 'block';
+                iterationsGroup.style.display = 'none';
+            } else if (selected === 'iterations') {
+                toleranceGroup.style.display = 'none';
+                iterationsGroup.style.display = 'block';
+            } else if (selected === 'both') {
+                toleranceGroup.style.display = 'block';
+                iterationsGroup.style.display = 'block';
+            }
+        }
+
+        stopCriterionRadios.forEach(radio => {
+            radio.addEventListener('change', updateStopCriterionFields);
+        });
+
+        // Inicializar con el criterio seleccionado por defecto
+        updateStopCriterionFields();
+
+        // ── Selector de funciones — Integración Numérica ────────────────
+        document.getElementById('int-function-preset').addEventListener('change', function () {
+            const parts = this.value.split('|');
+            document.getElementById('int-function').value = parts[0];
+            if (parts[1] !== undefined) document.getElementById('int-a').value = parts[1];
+            if (parts[2] !== undefined) document.getElementById('int-b').value = parts[2];
+            this.selectedIndex = 0;
+        });
+    </script>
+</body>
+</html>
