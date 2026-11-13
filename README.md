@@ -1,233 +1,271 @@
-# Calculadora de Análisis Numérico
+# 🧮 Numerical Methods Calculator
 
-Aplicación web moderna de análisis numérico con interfaz intuitiva y gráficos interactivos en tiempo real. Preparada para funcionar como aplicación web y como ejecutable de escritorio mediante Electron.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://www.javascript.com/)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://www.w3.org/html/)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)](https://www.w3.org/css/)
 
-## Desarrolladores
-- Jesús Manuel Manrique Rativa
-- Cristian Villanueva Medina
+An interactive web application for numerical analysis with real-time visualization. Implement three fundamental numerical methods: Fixed Point Iteration, Lagrange Interpolation, and Numerical Integration.
 
-## Información del Proyecto
-- Fecha de creación: Octubre 2026
-- Versión: 1.0.0
-- Curso: Análisis Numérico
+## 🎯 Features
 
-## Características
+- **Fixed Point Iteration**: Find roots using iterative methods with cobweb convergence visualization
+- **Lagrange Interpolation**: Generate polynomials that pass exactly through given points
+- **Numerical Integration**: Calculate approximate integrals using Trapezoidal and Simpson rules
+- **Real-time Visualization**: Interactive charts powered by Chart.js
+- **Mathematical Rendering**: Professional formula display with MathJax
+- **Exercise History**: Save and retrieve previous calculations using localStorage
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Accessibility**: WCAG AA compliant with keyboard navigation and screen reader support
+- **Cross-platform**: Electron desktop application included
 
-### Módulo 1: Iteración Simple de Punto Fijo
-- Cálculo de raíces mediante el método de iteración: x_{n+1} = g(x_n)
-- Validaciones explicativas de errores matemáticos
-- Tabla detallada de iteraciones con error aproximado
-- Gráfica interactiva con método de telaraña (cobweb plot)
-- Detección de divergencia y valores no válidos
+## 🛠️ Technologies
 
-### Módulo 2: Polinomios de Interpolación e Integración Numérica
+- **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6+)
+- **Visualization**: Chart.js 4.4.1
+- **Mathematics**: Math.js 12.4.0, MathJax 3
+- **Desktop**: Electron 28.0.0
+- **Testing**: Playwright (E2E tests)
 
-#### A. Interpolación de Lagrange
-- Ingreso dinámico de puntos (x_i, y_i)
-- Validación estricta de nodos duplicados
-- Generación del polinomio resultante
-- Gráfica interactiva que pasa por todos los puntos
+## 📦 Installation
 
-#### B. Integración Numérica
-- **Regla del Trapecio** (Simple y Múltiple)
-- **Regla de Simpson 1/3** (requiere n par)
-- **Regla de Simpson 3/8** (requiere n múltiplo de 3)
-- Validaciones explicativas de restricciones de cada método
-- Tabla de particiones detallada
-- Gráfica visual de aproximaciones geométricas
+### Web Version
 
-### Módulo 3: Referencia de Fórmulas
-- Sección dedicada con todas las fórmulas matemáticas
-- Renderizado profesional tipo LaTeX con MathJax
-- Explicaciones detalladas de cada método
+No installation required. The web version runs directly in the browser using CDN resources.
 
-### Módulo 4: Historial de Ejercicios
-- Guardado automático en localStorage
-- Recarga de ejercicios anteriores con un clic
-- Exportación a JSON
-- Gestión completa del historial
+### Desktop Application
 
-## Instalación y Ejecución
+#### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
-### Opción 1: Ejecutar como aplicación web (sin instalación)
-
-1. Clona o descarga el repositorio
-2. Abre el archivo `index.html` directamente en tu navegador
-3. ¡Listo! No requiere servidor ni instalación
+#### Steps
 
 ```bash
-# Simplemente abre el archivo
-open index.html  # macOS
-start index.html # Windows
-xdg-open index.html # Linux
-```
+# Clone the repository
+git clone https://github.com/JManrique26/numerical-methods-calculator-numerical-analysis-tools.git
+cd numerical-methods-calculator-numerical-analysis-tools
 
-### Opción 2: Ejecutar como aplicación de escritorio con Electron
-
-#### Requisitos previos
-- Node.js (versión 16 o superior)
-- npm o yarn
-
-#### Pasos de instalación
-
-1. Instalar dependencias:
-```bash
+# Install dependencies
 npm install
-```
 
-2. Ejecutar la aplicación en modo desarrollo:
-```bash
+# Run the application
 npm start
 ```
 
-## Empaquetado para Distribución
+#### Build Executables
 
-### Nota sobre iconos
-Antes de empaquetar, necesitas agregar iconos en la carpeta `assets/`:
-- `icon.png` (512x512 px) para Linux
-- `icon.ico` (256x256 px) para Windows
-- `icon.icns` para macOS
-
-Puedes crear estos iconos usando herramientas online como [icoconvert.com](https://icoconvert.com/) o usar un icono temporal. Si no tienes iconos, commenta las líneas correspondientes en `package.json`.
-
-### Crear ejecutable para Windows
 ```bash
+# Windows
 npm run build-win
-```
-Esto generará archivos `.exe` y `.exe` portable en la carpeta `dist/`
 
-### Crear ejecutable para Linux
-```bash
+# Linux
 npm run build-linux
-```
-Esto generará archivos `.AppImage` y `.deb` en la carpeta `dist/`
 
-### Crear ejecutable para macOS
-```bash
+# macOS
 npm run build-mac
 ```
-Esto generará un archivo `.dmg` en la carpeta `dist/`
 
-### Crear para todas las plataformas
+## 🚀 Usage
+
+### Web Version
+
+Simply open `index.html` in a modern web browser, or serve it using a local server:
+
 ```bash
-npm run build
+# Using Python
+python3 -m http.server 38141
+
+# Using Node.js (http-server)
+npx http-server -p 38141
 ```
 
-## Estructura del Proyecto
+Then navigate to `http://localhost:38141`
+
+### Desktop Application
+
+After running `npm start`, the Electron application will launch automatically.
+
+## 📚 Available Methods
+
+### 1. Fixed Point Iteration
+
+Solves equations of the form $x = g(x)$ using iterative approximation.
+
+**Features:**
+- Multiple stopping criteria (tolerance, iterations, or both)
+- Convergence visualization with cobweb plot
+- Iteration table with error tracking
+- Real-time result display
+
+**Example:**
+```
+Function: cos(x)
+Initial value: 0.5
+Tolerance: 1e-5
+Result: ≈ 0.739085
+```
+
+### 2. Lagrange Interpolation
+
+Constructs a polynomial that passes through a set of given points.
+
+**Features:**
+- Dynamic point input
+- Duplicate x-value validation
+- Polynomial degree calculation
+- Interactive chart showing the polynomial curve
+
+**Example:**
+```
+Points: (0, 1), (1, 2), (2, 5)
+Result: Polynomial of degree 2
+```
+
+### 3. Numerical Integration
+
+Approximates definite integrals using numerical methods.
+
+**Features:**
+- Trapezoidal Rule
+- Simpson's 1/3 Rule (requires even n)
+- Simpson's 3/8 Rule (requires n divisible by 3)
+- Geometric visualization
+- Partition table display
+
+**Example:**
+```
+Function: x^2
+Interval: [0, 2]
+Subintervals: 10
+Method: Trapezoidal Rule
+Result: ≈ 2.67
+```
+
+## 🧪 Testing
+
+The project includes comprehensive E2E tests using Playwright.
+
+```bash
+# Install dependencies
+npm install
+
+# Run all tests
+npm test
+
+# Run tests in UI mode
+npm run test:ui
+
+# View test report
+npx playwright show-report
+```
+
+### Test Coverage
+
+- Navigation and UI rendering
+- Mathematical calculations
+- Error handling
+- Library integration (MathJax, Chart.js)
+- History management
+- Accessibility (WCAG AA)
+- Responsiveness
+
+## 📁 Project Structure
 
 ```
-ispf_pil_rt_rs/
-├── index.html              # Página principal
-├── css/
-│   └── styles.css         # Estilos CSS
-├── js/
-│   └── main.js            # Script principal
-├── modules/
-│   ├── fixedPoint.js      # Módulo de Iteración de Punto Fijo
-│   ├── lagrange.js        # Módulo de Interpolación de Lagrange
-│   ├── integration.js     # Módulo de Integración Numérica
-│   └── history.js         # Módulo de Historial
-├── electron/
-│   ├── main.js            # Proceso principal de Electron
-│   └── preload.js         # Script de preload para seguridad
-├── package.json           # Configuración de Node.js y Electron
-└── README.md              # Este archivo
+numerical-methods-calculator/
+├── css/                      # Stylesheets
+│   └── styles.css
+├── electron/                 # Electron desktop app
+│   ├── main.js
+│   └── preload.js
+├── js/                       # JavaScript files
+│   ├── main.js
+│   └── i18n.js              # Internationalization
+├── modules/                  # Functional modules
+│   ├── fixedPoint.js        # Fixed Point Iteration
+│   ├── lagrange.js          # Lagrange Interpolation
+│   ├── integration.js       # Numerical Integration
+│   └── history.js           # Exercise History
+├── tests/                    # E2E tests
+│   ├── numerical-calculator.spec.js
+│   └── README.md
+├── assets/                   # Icons and images
+├── index.html                # Main HTML file
+├── favicon.svg              # Favicon
+├── package.json             # Node.js configuration
+├── playwright.config.js     # Playwright configuration
+└── README.md                # This file
 ```
 
-## Tecnologías Utilizadas
+## 🌐 Deploy as Web Application
 
-- **HTML5**: Estructura semántica
-- **CSS3**: Diseño moderno y responsivo
-- **JavaScript (ES6+)**: Lógica modular
-- **MathJax**: Renderizado de fórmulas matemáticas tipo LaTeX (CDN)
-- **Math.js**: Evaluación de expresiones matemáticas (CDN)
-- **Chart.js**: Gráficos interactivos (CDN)
-- **Electron**: Empaquetado para escritorio
+### GitHub Pages
 
-## Uso de la Aplicación
+1. Push to GitHub repository
+2. Go to **Settings** → **Pages**
+3. Select **Source**: `main` branch
+4. Your site will be available at `https://yourusername.github.io/repository-name`
 
-### Iteración de Punto Fijo
-1. Ingresa la función g(x) usando sintaxis de math.js (ej: `cos(x)`, `sqrt(x+2)`, `x^2+1`)
-2. Especifica el valor inicial x₀
-3. Define la tolerancia (ej: `0.00001` o `1e-5`)
-4. Indica el máximo de iteraciones
-5. Haz clic en "Calcular" para ver resultados y gráfica
+### Netlify
 
-### Interpolación de Lagrange
-1. Agrega puntos (x, y) dinámicamente
-2. Haz clic en "Calcular Polinomio"
-3. Visualiza el polinomio resultante y su gráfica
+1. Connect your GitHub repository to Netlify
+2. Build command: (leave empty)
+3. Publish directory: `.`
+4. Deploy
 
-### Integración Numérica
-1. Ingresa la función f(x)
-2. Define el intervalo [a, b]
-3. Especifica el número de subintervalos n
-4. Selecciona el método (Trapecio, Simpson 1/3, o Simpson 3/8)
-5. Haz clic en "Calcular Integral"
-6. Observa la tabla de particiones y la gráfica visual
+### Vercel
 
-### Historial
-- Los ejercicios exitosos se guardan automáticamente
-- Usa "Recargar" para restaurar parámetros anteriores
-- Usa "Exportar" para descargar el historial en JSON
-- Usa "Limpiar Todo" para borrar el historial
+1. Import repository in Vercel
+2. Framework preset: Other
+3. Deploy
 
-### Referencia de Fórmulas
-- Accede a la pestaña "Formulas" para ver todas las fórmulas matemáticas
-- Fórmulas renderizadas profesionalmente con MathJax
-- Explicaciones detalladas de cada método numérico
+## 📊 Screenshots
 
-## Notas Importantes
+![Fixed Point Iteration](https://via.placeholder.com/800x400?text=Fixed+Point+Iteration)
+![Lagrange Interpolation](https://via.placeholder.com/800x400?text=Lagrange+Interpolation)
+![Numerical Integration](https://via.placeholder.com/800x400?text=Numerical+Integration)
 
-### Validaciones de Seguridad
-- La aplicación no permite nodos duplicados en interpolación de Lagrange
-- Simpson 1/3 requiere n par (se explicará el motivo si no se cumple)
-- Simpson 3/8 requiere n múltiplo de 3 (se explicará el motivo si no se cumple)
-- Se detectan divisiones por cero, raíces de negativos, y otros errores matemáticos
+*Note: Add actual screenshots of your application*
 
-### Sintaxis de Funciones
-Usa la sintaxis de math.js:
-- Operadores: `+`, `-`, `*`, `/`, `^`
-- Funciones: `sin(x)`, `cos(x)`, `tan(x)`, `sqrt(x)`, `log(x)`, `exp(x)`
-- Constantes: `pi`, `e`
-- Paréntesis para agrupar: `(x + 2) / 3`
+## 🤝 Contributing
 
-Ejemplos válidos:
-- `cos(x)`
-- `sqrt(x + 2)`
-- `(x^2 + 1) / 3`
-- `sin(x) + cos(x)`
-- `exp(-x^2)`
+Contributions are welcome! Please follow these steps:
 
-## Solución de Problemas
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### La aplicación no carga los gráficos
-- Verifica tu conexión a internet (las librerías se cargan desde CDN)
-- Asegúrate de que tu navegador soporta Canvas HTML5
+## 📝 License
 
-### Error al empaquetar con Electron
-- Asegúrate de tener Node.js instalado (versión 16+)
-- Ejecuta `npm install` antes de intentar empaquetar
-- En Windows, puede que necesites permisos de administrador
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### El historial no se guarda
-- Verifica que tu navegador permita localStorage
-- No uses modo de navegación privada
+## 👨‍💻 Authors
 
-## Licencia
+- **Jesús Manuel Manrique Rativa**
+- **Cristian Villanueva Medina**
 
-MIT License - Puedes usar, modificar y distribuir este proyecto libremente.
+## 🙏 Acknowledgments
 
-## Autor
+- [Math.js](https://mathjs.org/) - Mathematical expression evaluation
+- [Chart.js](https://www.chartjs.org/) - Interactive charts
+- [MathJax](https://www.mathjax.org/) - Mathematical formula rendering
+- [Electron](https://www.electronjs.org/) - Desktop application framework
 
-Desarrollado para el curso de Análisis Numérico (2026)
+## 📞 Support
 
-**Desarrolladores:**
-- Jesús Manuel Manrique Rativa
-- Cristian Villanueva Medina
+If you encounter any issues or have questions:
+- Open an [issue](https://github.com/JManrique26/numerical-methods-calculator-numerical-analysis-tools/issues)
+- Check the [documentation](https://github.com/JManrique26/numerical-methods-calculator-numerical-analysis-tools/wiki)
 
-## Agradecimientos
+## 🔗 Links
 
-- Math.js por la librería de evaluación matemática
-- Chart.js por las gráficas interactivas
-- Electron por el framework de aplicaciones de escritorio
+- [Live Demo](https://yourusername.github.io/numerical-methods-calculator-numerical-analysis-tools) *(after deploying)*
+- [Documentation](https://github.com/JManrique26/numerical-methods-calculator-numerical-analysis-tools/wiki)
+- [Issues](https://github.com/JManrique26/numerical-methods-calculator-numerical-analysis-tools/issues)
+
+---
+
+⭐ **Star this repository if you find it useful!**
