@@ -1408,8 +1408,67 @@ footer {
         font-size: 0.9rem;
     }
 
+    .input-panel h2 {
+        font-size: 1.5rem;
+    }
+
+    .description {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"] {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.95rem;
+    }
+
+    .form-group small {
+        font-size: 0.8rem;
+    }
+
+    .method-selector {
+        padding: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .method-selector label {
+        font-size: 0.9rem;
+    }
+
     .button-group {
         flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 0.875rem 1rem;
+    }
+
+    .results-panel {
+        padding: 0.25rem;
+    }
+
+    .results-content {
+        padding: 1.25rem;
+    }
+
+    .results-content h3 {
+        font-size: 1.25rem;
+    }
+
+    .chart-container {
+        height: 250px;
+        padding: 0.75rem;
     }
 
     .history-controls {
