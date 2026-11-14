@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Análisis Numérico</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="css/styles.css?v=7">
+    <link rel="stylesheet" href="css/styles.css?v=8">
     <!-- MathJax para renderizado de fórmulas matemáticas -->
     <script>
         MathJax = {
@@ -729,9 +729,12 @@
         </footer>
     </div>
 
-    <script src="modules/fixedPoint.js?v=25"></script>
-    <script src="modules/lagrange.js?v=7"></script>
-    <script src="modules/integration.js?v=7"></script>
+    <!-- Contenedor oculto usado solo para impresión/PDF -->
+    <div id="print-root" aria-hidden="true"></div>
+
+    <script src="modules/fixedPoint.js?v=26"></script>
+    <script src="modules/lagrange.js?v=8"></script>
+    <script src="modules/integration.js?v=8"></script>
     <script src="modules/history.js"></script>
     <script src="js/main.js?v=2"></script>
     <script>

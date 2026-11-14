@@ -133,6 +133,51 @@ const NumericUtils = {
 // Exportar para uso en otros módulos
 window.NumericUtils = NumericUtils;
 
+// ── Impresión / PDF de resultados ─────────────────────────────────────────
+// Copia el contenido de resultados + la gráfica (canvas → PNG) a un contenedor
+// oculto #print-root y lanza window.print(). CSS @media print oculta el resto.
+window.printCalculation = function (moduleId) {
+    const resultsEl = document.querySelector(`#${moduleId} .results-content`);
+    const printRoot = document.getElementById('print-root');
+    if (!resultsEl || !printRoot) return;
+
+    const moduleTitle = document.querySelector(`#${moduleId} .input-panel h2`);
+    const title = moduleTitle ? moduleTitle.textContent.trim() : 'Resultados';
+    const date  = new Date().toLocaleString('es-ES');
+
+    let html = `<div class="print-header">
+        <h1>${title}</h1>
+        <p class="print-date">${date}</p>
+    </div>`;
+    html += resultsEl.innerHTML;
+
+    // Gráfica como imagen PNG
+    const canvas = document.querySelector(`#${moduleId} canvas`);
+    if (canvas && canvas.width > 0) {
+        try {
+            html += `<h3 class="print-chart-title">Gráfica</h3>`;
+            html += `<img class="print-chart-img" src="${canvas.toDataURL('image/png')}" alt="Gráfica del cálculo">`;
+        } catch (e) { /* canvas tainted o no disponible */ }
+    }
+
+    // Lista de puntos de iteración (solo existe en punto fijo)
+    const pointsList = document.querySelector(`#${moduleId} .points-list`);
+    if (pointsList) {
+        html += pointsList.innerHTML;
+    }
+
+    printRoot.innerHTML = html;
+    document.body.classList.add('printing');
+
+    const cleanup = () => document.body.classList.remove('printing');
+    window.addEventListener('afterprint', cleanup, { once: true });
+    // Fallback por si afterprint no dispara (algunos móviles)
+    setTimeout(cleanup, 60000);
+
+    // Pequeño delay para que el DOM de impresión exista antes de imprimir
+    setTimeout(() => window.print(), 50);
+};
+
 // ── Altura fija del panel de resultados ────────────────────────────────────
 // Guardamos la altura del input-panel en estado vacío (primera vez que es visible)
 // y la aplicamos permanentemente al results-content.

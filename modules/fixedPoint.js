@@ -208,6 +208,9 @@ class FixedPointModule {
         const VISIBLE = 10;
 
         let html = '<h3>Resultados</h3>';
+        html += `<div class="print-actions">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="printCalculation('fixed-point')">Imprimir / Guardar PDF</button>
+        </div>`;
 
         // Tabla con scroll: 10 filas visibles, resto desplazable
         html += `<div class="table-scroll" style="max-height:${VISIBLE * 45}px; overflow-y:auto; margin-bottom:1rem;">`;

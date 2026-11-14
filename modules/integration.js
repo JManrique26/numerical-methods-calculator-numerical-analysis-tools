@@ -196,6 +196,9 @@ class IntegrationModule {
         };
 
         let html = '<h3>Resultados</h3>';
+        html += `<div class="print-actions">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="printCalculation('integration')">Imprimir / Guardar PDF</button>
+        </div>`;
 
         html += '<div class="summary">';
         html += `<p><strong>Método:</strong> ${this.getMethodName(method)}</p>`;
