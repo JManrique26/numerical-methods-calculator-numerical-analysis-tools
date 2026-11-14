@@ -136,12 +136,21 @@ window.NumericUtils = NumericUtils;
 // ── Altura fija del panel de resultados ────────────────────────────────────
 // Guardamos la altura del input-panel en estado vacío (primera vez que es visible)
 // y la aplicamos permanentemente al results-content.
+// SOLO en escritorio (panels-row a 2 columnas, >1024px). En móvil/tablet los
+// paneles se apilan en columna y el results-content usa la altura fija del CSS,
+// para que calcular no deforme el layout.
+
+const WIDE_LAYOUT_QUERY = '(min-width: 1025px)';
+
+function _isWideLayout() {
+    return window.matchMedia(WIDE_LAYOUT_QUERY).matches;
+}
 
 const _fixedHeights = {};   // { moduleId: px }
 
 function _snapshotHeight(moduleId) {
-    // No sobreescribir si ya la tenemos
-    if (_fixedHeights[moduleId]) return;
+    // No sobreescribir si ya la tenemos; y solo aplica en layout de 2 columnas
+    if (_fixedHeights[moduleId] || !_isWideLayout()) return;
     const container = document.querySelector(`#${moduleId} .panels-row`);
     if (!container) return;
     const inputPanel = container.querySelector('.input-panel');
@@ -152,10 +161,19 @@ function _snapshotHeight(moduleId) {
 }
 
 function _applyFixedHeight(moduleId) {
-    const h = _fixedHeights[moduleId];
-    if (!h) return;
     const el = document.querySelector(`#${moduleId} .results-panel .results-content`);
     if (!el) return;
+
+    // En móvil: quitar cualquier altura inline previa para que mande el CSS fijo
+    if (!_isWideLayout()) {
+        el.style.height    = '';
+        el.style.maxHeight = '';
+        el.style.overflowY = '';
+        return;
+    }
+
+    const h = _fixedHeights[moduleId];
+    if (!h) return;
     el.style.height    = h + 'px';
     el.style.maxHeight = h + 'px';
     el.style.overflowY = 'auto';
