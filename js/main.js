@@ -145,19 +145,18 @@ window.printCalculation = function (moduleId) {
     const title = moduleTitle ? moduleTitle.textContent.trim() : 'Resultados';
     const date  = new Date().toLocaleString('es-ES');
 
+    const canvas = document.querySelector(`#${moduleId} canvas`);
+    const hasChart = !!(canvas && canvas.width > 0);
+
     let html = `<div class="print-header">
         <h1>${title}</h1>
         <p class="print-date">${date}</p>
     </div>`;
     html += resultsEl.innerHTML;
 
-    // Gráfica como imagen PNG
-    const canvas = document.querySelector(`#${moduleId} canvas`);
-    if (canvas && canvas.width > 0) {
-        try {
-            html += `<h3 class="print-chart-title">Gráfica</h3>`;
-            html += `<img class="print-chart-img" src="${canvas.toDataURL('image/png')}" alt="Gráfica del cálculo">`;
-        } catch (e) { /* canvas tainted o no disponible */ }
+    if (hasChart) {
+        html += `<h3 class="print-chart-title">Gráfica</h3>`;
+        html += `<div id="print-chart-slot"></div>`;
     }
 
     // Lista de puntos de iteración (solo existe en punto fijo)
@@ -174,8 +173,58 @@ window.printCalculation = function (moduleId) {
     // Fallback por si afterprint no dispara (algunos móviles)
     setTimeout(cleanup, 60000);
 
-    // Pequeño delay para que el DOM de impresión exista antes de imprimir
-    setTimeout(() => window.print(), 50);
+    const launchPrint = () => setTimeout(() => window.print(), 30);
+
+    // ── Re-renderizar la gráfica a mayor resolución para el PDF ──────
+    // El canvas en pantalla suele ser 1x; lo subimos a 2x/3x temporalmente,
+    // exportamos el PNG nítido y restauramos la gráfica original.
+    if (hasChart && window.Chart && typeof Chart.getChart === 'function') {
+        const chart = Chart.getChart(canvas);
+        if (chart) {
+            const prevDpr = chart.options.devicePixelRatio || window.devicePixelRatio || 1;
+            const EXPORT_DPR = 3;
+
+            chart.options.devicePixelRatio = EXPORT_DPR;
+            chart.resize();
+
+            // Esperar a que Chart.js repinte el canvas a la nueva resolución
+            setTimeout(() => {
+                try {
+                    const slot = document.getElementById('print-chart-slot');
+                    if (slot) {
+                        const img = document.createElement('img');
+                        img.className = 'print-chart-img';
+                        img.alt = 'Gráfica del cálculo';
+                        img.src = canvas.toDataURL('image/png');
+                        slot.appendChild(img);
+                    }
+                } catch (e) { /* canvas no exportable */ }
+
+                // Restaurar la gráfica en pantalla a su resolución original
+                chart.options.devicePixelRatio = prevDpr;
+                chart.resize();
+
+                launchPrint();
+            }, 120);
+            return;
+        }
+    }
+
+    // Sin instancia de Chart.js: exportar el canvas tal cual
+    if (hasChart) {
+        try {
+            const slot = document.getElementById('print-chart-slot');
+            if (slot) {
+                const img = document.createElement('img');
+                img.className = 'print-chart-img';
+                img.alt = 'Gráfica del cálculo';
+                img.src = canvas.toDataURL('image/png');
+                slot.appendChild(img);
+            }
+        } catch (e) { /* ignorar */ }
+    }
+
+    launchPrint();
 };
 
 // ── Altura fija del panel de resultados ────────────────────────────────────
