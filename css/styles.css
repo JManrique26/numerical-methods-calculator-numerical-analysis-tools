@@ -1960,23 +1960,121 @@ select:focus-visible {
 
 /* ── Impresión / PDF ──
    #print-root está oculto en pantalla; solo se muestra al imprimir
-   (cuando body tiene la clase .printing). El resto de la app se oculta. */
+   (cuando body tiene la clase .printing) o durante la captura para PDF.
+   Los estilos de contenido aplican siempre: como el nodo está en
+   display:none no afectan la pantalla, pero sí la captura y la impresión. */
 #print-root {
     display: none;
 }
 
-/* Visible solo durante la captura html2canvas → PDF: fuera de pantalla */
+/* Activo durante la captura html-to-image → PDF.
+   NO usar position/left aquí: html-to-image clona el nodo con sus estilos
+   y un posicionamiento fuera de pantalla produce imágenes en blanco.
+   El nodo se coloca dentro de un host con height:0/overflow:hidden. */
 #print-root.pdf-capture {
     display: block;
-    position: fixed;
-    left: -12000px;
-    top: 0;
     width: 794px;   /* ~210mm A4 a 96dpi */
     padding: 20px;
     background: #ffffff;
     color: #000000;
-    z-index: -1;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 12pt;
+    line-height: 1.5;
+}
+
+#print-root .print-header {
+    border-bottom: 2px solid #000;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+#print-root .print-header h1 {
+    font-size: 18pt;
+    margin: 0 0 0.25rem;
+}
+
+#print-root .print-date {
+    font-size: 10pt;
+    color: #444;
+    margin: 0;
+}
+
+/* Los botones no se imprimen ni se capturan */
+#print-root .print-actions,
+#print-root button {
+    display: none !important;
+}
+
+#print-root h3 {
+    font-size: 13pt;
+    margin-top: 1.25rem;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.25rem;
+}
+
+#print-root table {
+    width: 100%;
+    font-size: 9pt;
+    border-collapse: collapse;
+}
+
+#print-root th,
+#print-root td {
+    border: 1px solid #999;
+    padding: 0.3rem 0.5rem;
+    white-space: nowrap;
+}
+
+#print-root th {
+    background: #eee;
+}
+
+#print-root tr,
+#print-root td,
+#print-root th,
+#print-root .conclusion,
+#print-root .summary {
+    page-break-inside: avoid;
+}
+
+#print-root .print-chart-img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    margin-top: 0.5rem;
+}
+
+/* Las tarjetas de puntos se imprimen como lista compacta */
+#print-root .points-list {
+    border: none;
+    max-height: none;
     overflow: visible;
+    margin-top: 1rem;
+}
+
+#print-root .points-list h4 {
+    position: static;
+    border-bottom: 1px solid #000;
+}
+
+#print-root .points-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    padding: 1rem 0;
+}
+
+#print-root .point-item {
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+}
+
+#print-root .point-coordinates {
+    color: #000;
+}
+
+#print-root .point-iteration {
+    background: #fff;
+    color: #000;
 }
 
 @media print {
@@ -1990,108 +2088,7 @@ select:focus-visible {
 
     body.printing #print-root {
         display: block !important;
-        position: static !important;
-        left: auto !important;
         width: auto !important;
         padding: 0 !important;
-        color: #000;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 12pt;
-        line-height: 1.5;
-    }
-
-    #print-root .print-header {
-        border-bottom: 2px solid #000;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1.25rem;
-    }
-
-    #print-root .print-header h1 {
-        font-size: 18pt;
-        margin: 0 0 0.25rem;
-    }
-
-    #print-root .print-date {
-        font-size: 10pt;
-        color: #444;
-        margin: 0;
-    }
-
-    /* Los botones no se imprimen */
-    #print-root .print-actions,
-    #print-root button {
-        display: none !important;
-    }
-
-    #print-root h3 {
-        font-size: 13pt;
-        margin-top: 1.25rem;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 0.25rem;
-    }
-
-    #print-root table {
-        width: 100%;
-        font-size: 9pt;
-        border-collapse: collapse;
-    }
-
-    #print-root th,
-    #print-root td {
-        border: 1px solid #999;
-        padding: 0.3rem 0.5rem;
-        white-space: nowrap;
-    }
-
-    #print-root th {
-        background: #eee;
-    }
-
-    #print-root tr,
-    #print-root td,
-    #print-root th,
-    #print-root .conclusion,
-    #print-root .summary {
-        page-break-inside: avoid;
-    }
-
-    #print-root .print-chart-img {
-        max-width: 100%;
-        height: auto;
-        border: 1px solid #ccc;
-        margin-top: 0.5rem;
-    }
-
-    /* Las tarjetas de puntos se imprimen como lista compacta */
-    #print-root .points-list {
-        border: none;
-        max-height: none;
-        overflow: visible;
-        margin-top: 1rem;
-    }
-
-    #print-root .points-list h4 {
-        position: static;
-        border-bottom: 1px solid #000;
-    }
-
-    #print-root .points-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        padding: 1rem 0;
-    }
-
-    #print-root .point-item {
-        background: #fff;
-        color: #000;
-        border: 1px solid #000;
-    }
-
-    #print-root .point-coordinates {
-        color: #000;
-    }
-
-    #print-root .point-iteration {
-        background: #fff;
-        color: #000;
     }
 }

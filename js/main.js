@@ -220,15 +220,29 @@ window.printCalculation = async function (moduleId) {
     if (window.jspdf && window.htmlToImage) {
         setBtnState('Generando PDF…', true);
         try {
-            // html-to-image no captura display:none → mostrar fuera de pantalla
-            printRoot.classList.add('pdf-capture');
-            const imgData = await window.htmlToImage.toJpeg(printRoot, {
-                quality: 0.92,
-                pixelRatio: 2,
-                backgroundColor: '#ffffff',
-                cacheBust: true
-            });
-            printRoot.classList.remove('pdf-capture');
+            // Capturar un CLON del contenido dentro de un host recortado.
+            // No posicionar el nodo fuera de pantalla: html-to-image copia
+            // sus estilos y produciría una imagen en blanco.
+            const host = document.createElement('div');
+            host.style.cssText = 'position:fixed;left:0;top:0;width:820px;height:0;overflow:hidden;pointer-events:none;';
+            const captureNode = document.createElement('div');
+            captureNode.id = 'print-root';
+            captureNode.className = 'pdf-capture';
+            captureNode.innerHTML = printRoot.innerHTML;
+            host.appendChild(captureNode);
+            document.body.appendChild(host);
+
+            let imgData;
+            try {
+                imgData = await window.htmlToImage.toJpeg(captureNode, {
+                    quality: 0.92,
+                    pixelRatio: 2,
+                    backgroundColor: '#ffffff',
+                    cacheBust: true
+                });
+            } finally {
+                host.remove();
+            }
 
             // Dimensiones de la imagen en píxeles
             const tmpImg = new Image();
@@ -262,7 +276,6 @@ window.printCalculation = async function (moduleId) {
             pdf.save(`analisis-numerico_${safeTitle}_${Date.now()}.pdf`);
         } catch (e) {
             console.error('Error generando PDF:', e);
-            printRoot.classList.remove('pdf-capture');
             // Fallback a impresión del navegador
             document.body.classList.add('printing');
             const cleanup = () => document.body.classList.remove('printing');
