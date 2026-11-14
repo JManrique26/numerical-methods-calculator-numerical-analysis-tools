@@ -133,10 +133,11 @@ const NumericUtils = {
 // Exportar para uso en otros módulos
 window.NumericUtils = NumericUtils;
 
-// ── Impresión / PDF de resultados ─────────────────────────────────────────
-// Copia el contenido de resultados + la gráfica (canvas → PNG) a un contenedor
-// oculto #print-root y lanza window.print(). CSS @media print oculta el resto.
-window.printCalculation = function (moduleId) {
+// ── PDF de resultados ──────────────────────────────────────────────────────
+// Genera un PDF real en el cliente con html2canvas + jsPDF: funciona igual en
+// PC, tablet y teléfono sin depender del diálogo de impresión del navegador.
+// Fallback: window.print() si las librerías CDN no están disponibles.
+window.printCalculation = async function (moduleId) {
     const resultsEl = document.querySelector(`#${moduleId} .results-content`);
     const printRoot = document.getElementById('print-root');
     if (!resultsEl || !printRoot) return;
@@ -144,6 +145,13 @@ window.printCalculation = function (moduleId) {
     const moduleTitle = document.querySelector(`#${moduleId} .input-panel h2`);
     const title = moduleTitle ? moduleTitle.textContent.trim() : 'Resultados';
     const date  = new Date().toLocaleString('es-ES');
+
+    const btn = document.querySelector(`#${moduleId} .print-actions button`);
+    const setBtnState = (text, disabled) => {
+        if (!btn) return;
+        btn.disabled = disabled;
+        btn.textContent = text;
+    };
 
     const canvas = document.querySelector(`#${moduleId} canvas`);
     const hasChart = !!(canvas && canvas.width > 0);
@@ -165,66 +173,114 @@ window.printCalculation = function (moduleId) {
         html += pointsList.innerHTML;
     }
 
+    // Quitar botones del propio contenido copiado
     printRoot.innerHTML = html;
-    document.body.classList.add('printing');
+    printRoot.querySelectorAll('button').forEach(b => b.remove());
 
-    const cleanup = () => document.body.classList.remove('printing');
-    window.addEventListener('afterprint', cleanup, { once: true });
-    // Fallback por si afterprint no dispara (algunos móviles)
-    setTimeout(cleanup, 60000);
-
-    const launchPrint = () => setTimeout(() => window.print(), 30);
+    const exportChart = () => new Promise(resolve => {
+        const slot = document.getElementById('print-chart-slot');
+        if (!slot) { resolve(); return; }
+        const img = document.createElement('img');
+        img.className = 'print-chart-img';
+        img.alt = 'Gráfica del cálculo';
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = canvas.toDataURL('image/png');
+        slot.appendChild(img);
+    });
 
     // ── Re-renderizar la gráfica a mayor resolución para el PDF ──────
-    // El canvas en pantalla suele ser 1x; lo subimos a 2x/3x temporalmente,
-    // exportamos el PNG nítido y restauramos la gráfica original.
-    if (hasChart && window.Chart && typeof Chart.getChart === 'function') {
-        const chart = Chart.getChart(canvas);
-        if (chart) {
-            const prevDpr = chart.options.devicePixelRatio || window.devicePixelRatio || 1;
-            const EXPORT_DPR = 3;
+    const restoreChart = (chart, prevDpr) => {
+        chart.options.devicePixelRatio = prevDpr;
+        chart.resize();
+    };
 
-            chart.options.devicePixelRatio = EXPORT_DPR;
-            chart.resize();
-
-            // Esperar a que Chart.js repinte el canvas a la nueva resolución
-            setTimeout(() => {
-                try {
-                    const slot = document.getElementById('print-chart-slot');
-                    if (slot) {
-                        const img = document.createElement('img');
-                        img.className = 'print-chart-img';
-                        img.alt = 'Gráfica del cálculo';
-                        img.src = canvas.toDataURL('image/png');
-                        slot.appendChild(img);
-                    }
-                } catch (e) { /* canvas no exportable */ }
-
-                // Restaurar la gráfica en pantalla a su resolución original
-                chart.options.devicePixelRatio = prevDpr;
-                chart.resize();
-
-                launchPrint();
-            }, 120);
+    const prepareChart = () => new Promise(resolve => {
+        if (!hasChart || !window.Chart || typeof Chart.getChart !== 'function') {
+            exportChart().then(resolve);
             return;
         }
-    }
+        const chart = Chart.getChart(canvas);
+        if (!chart) { exportChart().then(resolve); return; }
 
-    // Sin instancia de Chart.js: exportar el canvas tal cual
-    if (hasChart) {
+        const prevDpr = chart.options.devicePixelRatio || window.devicePixelRatio || 1;
+        chart.options.devicePixelRatio = 3;
+        chart.resize();
+        setTimeout(() => {
+            exportChart().then(() => {
+                restoreChart(chart, prevDpr);
+                resolve();
+            });
+        }, 120);
+    });
+
+    await prepareChart();
+
+    // ── Generar PDF con jsPDF ─────────────────────────────────────────
+    if (window.jspdf && window.htmlToImage) {
+        setBtnState('Generando PDF…', true);
         try {
-            const slot = document.getElementById('print-chart-slot');
-            if (slot) {
-                const img = document.createElement('img');
-                img.className = 'print-chart-img';
-                img.alt = 'Gráfica del cálculo';
-                img.src = canvas.toDataURL('image/png');
-                slot.appendChild(img);
+            // html-to-image no captura display:none → mostrar fuera de pantalla
+            printRoot.classList.add('pdf-capture');
+            const imgData = await window.htmlToImage.toJpeg(printRoot, {
+                quality: 0.92,
+                pixelRatio: 2,
+                backgroundColor: '#ffffff',
+                cacheBust: true
+            });
+            printRoot.classList.remove('pdf-capture');
+
+            // Dimensiones de la imagen en píxeles
+            const tmpImg = new Image();
+            await new Promise((res, rej) => {
+                tmpImg.onload = res;
+                tmpImg.onerror = rej;
+                tmpImg.src = imgData;
+            });
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageW = 210, pageH = 297, margin = 15;
+            const contentW = pageW - margin * 2;
+            const contentH = pageH - margin * 2;
+
+            const imgHeightMm = tmpImg.naturalHeight * contentW / tmpImg.naturalWidth;
+
+            let heightLeft = imgHeightMm;
+            let position = margin;
+            pdf.addImage(imgData, 'JPEG', margin, position, contentW, imgHeightMm);
+            heightLeft -= contentH;
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeightMm + margin;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', margin, position, contentW, imgHeightMm);
+                heightLeft -= contentH;
             }
-        } catch (e) { /* ignorar */ }
+
+            const safeTitle = title.toLowerCase().replace(/[^a-záéíóúñü0-9]+/g, '-').replace(/^-|-$/g, '');
+            pdf.save(`analisis-numerico_${safeTitle}_${Date.now()}.pdf`);
+        } catch (e) {
+            console.error('Error generando PDF:', e);
+            printRoot.classList.remove('pdf-capture');
+            // Fallback a impresión del navegador
+            document.body.classList.add('printing');
+            const cleanup = () => document.body.classList.remove('printing');
+            window.addEventListener('afterprint', cleanup, { once: true });
+            setTimeout(cleanup, 60000);
+            window.print();
+        } finally {
+            setBtnState('Guardar PDF', false);
+        }
+        return;
     }
 
-    launchPrint();
+    // ── Fallback: impresión nativa ────────────────────────────────────
+    document.body.classList.add('printing');
+    const cleanup = () => document.body.classList.remove('printing');
+    window.addEventListener('afterprint', cleanup, { once: true });
+    setTimeout(cleanup, 60000);
+    setTimeout(() => window.print(), 100);
 };
 
 // ── Altura fija del panel de resultados ────────────────────────────────────

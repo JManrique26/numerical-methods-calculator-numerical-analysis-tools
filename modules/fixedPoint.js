@@ -209,7 +209,7 @@ class FixedPointModule {
 
         let html = '<h3>Resultados</h3>';
         html += `<div class="print-actions">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="printCalculation('fixed-point')">Imprimir / Guardar PDF</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="printCalculation('fixed-point')">Guardar PDF</button>
         </div>`;
 
         // Tabla con scroll: 10 filas visibles, resto desplazable

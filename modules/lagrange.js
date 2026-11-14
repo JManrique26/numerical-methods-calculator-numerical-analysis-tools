@@ -266,7 +266,7 @@ class LagrangeModule {
 
         let html = '<h3>Resultados</h3>';
         html += `<div class="print-actions">
-            <button type="button" class="btn btn-secondary btn-sm" onclick="printCalculation('lagrange')">Imprimir / Guardar PDF</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="printCalculation('lagrange')">Guardar PDF</button>
         </div>`;
 
         html += '<h4>Puntos de Interpolación:</h4>';

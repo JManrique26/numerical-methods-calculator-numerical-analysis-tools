@@ -1965,6 +1965,20 @@ select:focus-visible {
     display: none;
 }
 
+/* Visible solo durante la captura html2canvas → PDF: fuera de pantalla */
+#print-root.pdf-capture {
+    display: block;
+    position: fixed;
+    left: -12000px;
+    top: 0;
+    width: 794px;   /* ~210mm A4 a 96dpi */
+    padding: 20px;
+    background: #ffffff;
+    color: #000000;
+    z-index: -1;
+    overflow: visible;
+}
+
 @media print {
     @page {
         margin: 1.5cm;
@@ -1976,6 +1990,10 @@ select:focus-visible {
 
     body.printing #print-root {
         display: block !important;
+        position: static !important;
+        left: auto !important;
+        width: auto !important;
+        padding: 0 !important;
         color: #000;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 12pt;
